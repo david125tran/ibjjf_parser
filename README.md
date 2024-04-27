@@ -4,7 +4,7 @@ The International Brazilian Jiu-Jitsu Federation (IBJJF) is a for-profit company
   
 Once bouts are assigned, the time and mat assignment is dumped in, and then my team uses this list to stay organized as one big group at the event.     
 
-#IBJJF Registration List
+# IBJJF Registration List
 ![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/IBJJF%20Screenshot.png)  
 
 # End result:

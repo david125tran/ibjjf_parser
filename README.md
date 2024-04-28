@@ -11,4 +11,4 @@ Once bouts are assigned, the time and mat assignment is dumped in, and then my t
 ![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/brackets.png)  
 
 # End result:
-![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/IBJJF_Screenshot.png)  
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/Screenshot.png)  

@@ -14,7 +14,7 @@ from openpyxl import Workbook, load_workbook, styles
 from openpyxl.styles import Font, PatternFill, Alignment
 from sys import exit
 
-#--- HTML Color Code Constants ---
+# --- HTML Color Code Constants ---
 # https://htmlcolorcodes.com/
 BLUE = "00CCFF"
 PURPLE = "FF00FF"

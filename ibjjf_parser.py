@@ -1,4 +1,4 @@
-#-------------------------------------- Terminal installs --------------------------------------
+# --- Terminal installs ---
 # python -m ensurepip
 # python -m pip install BeautifulSoup4
 # python -m pip install requests
@@ -6,7 +6,7 @@
 # python -m pip install openpyxl
 # python -m pip install pipreqs
 
-#-------------------------------------- Libraries --------------------------------------
+# --- Libraries ---
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
@@ -14,35 +14,40 @@ from openpyxl import Workbook, load_workbook, styles
 from openpyxl.styles import Font, PatternFill, Alignment
 from sys import exit
 
-#-------------------------------------- HTML Color Code Constants --------------------------------------
+#--- HTML Color Code Constants ---
 # https://htmlcolorcodes.com/
-BLUE = "58bae8"
+BLUE = "00CCFF"
 PURPLE = "FF00FF"
-BROWN = "873600"
+BROWN = "993300"
 BLACK = "000000"
 RED = "FF0000"
 GREEN_HEADER = "09c97d"
 BLUE_URL = "0000ff"
 
-#-------------------------------------- Search Inputs --------------------------------------
-# The team name is case sensitive.  Some team names have a space " " at the end of the name
-team = "G13 BJJ TEAM"
-url = "https://www.ibjjfdb.com/ChampionshipResults/2449/PublicAcademyRegistration?lang=en-US"
-filename = "IBJJF Chicago 2024"
-brackets = "https://www.bjjcompsystem.com/tournaments/2449/categories"
+#--- User Inputs ---
+team = "G13 BJJ USA"    # The team name is case sensitive.  Some team names have a space " " at the end of the name
+tourney_id = "2412"   
+club_id = "4440"        # Comes from searching a team from order of fights page
+filename = "test1"
 
-#-------------------------------------- Misc. --------------------------------------
+
+#--- Misc. Variables ---
 filename = filename + ".xlsx"
 bjjcompsystem = "https://www.bjjcompsystem.com"
 gender_category = "?gender_id="
+brackets = f"https://www.bjjcompsystem.com/tournaments/{tourney_id}/categories"
+registration_url = f"https://www.ibjjfdb.com/ChampionshipResults/{tourney_id}/PublicAcademyRegistration?lang=en-US"
+order_of_fights_url = f"https://www.bjjcompsystem.com/tournaments/{tourney_id}/tournament_days/by_club?club_id={club_id}"
 
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Part 1: Generating initial Excel file >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-#-------------------------------------- Parse IBJJF'S Athlete Registration List --------------------------------------
-response = requests.get(url)
+# -------------------------------------- Part 1: Generating Initial Excel file --------------------------------------
+
+# Parse IBJJF'S Athlete Registration List
+response = requests.get(registration_url)
 soup = BeautifulSoup(response.content, 'html.parser')
 
 # Get team's athletes and clean data
 athletes = soup.find_all("script")[4].get_text()
+# Cut to the left of the string that contains the team's name
 athletes = athletes.split(f'{team}",', 1)
 athletes.remove(athletes[0])
 x = ']},{"'
@@ -56,6 +61,7 @@ athletes = athletes.replace('"}', '')
 athletes = athletes.split(",")
 
 csv_dictionary = {
+    'DateTime': [],
     'Time': [],
     'Mat': [],
     'Division': [],
@@ -103,6 +109,7 @@ for i in range(0, len(athletes)):
         classification = division + "/" + gender[1] + "/" + rank + "/" + wc
 
         # Append to csv_dictionary
+        csv_dictionary['DateTime'].append("TBD")
         csv_dictionary['Time'].append("TBD")
         csv_dictionary['Mat'].append("TBD")
         csv_dictionary['Division'].append(division)
@@ -115,14 +122,14 @@ for i in range(0, len(athletes)):
         # Append to team_dictionary 
         csv_dictionary['Name'].append(name)
 
-#-------------------------------------- Push 'csv_dictionary' to MS Excel (.xlsx) with Pandas  --------------------------------------
+# Push 'csv_dictionary' to MS Excel (.xlsx) with Pandas  
 # dictionary to data frame
 df = pd.DataFrame.from_dict(csv_dictionary)
 
 # dataframe to csv
-df.to_excel(filename, columns=['Time', 'Mat', 'Division', 'Weight Class', 'Name'], index=False, header=True)
+df.to_excel(filename, columns=['DateTime', 'Time', 'Mat', 'Division', 'Weight Class', 'Name'], index=False, header=True)
 
-#-------------------------------------- Format Excel File with OpenPyXL --------------------------------------
+# Format Excel File with OpenPyXL
 # Load the already created Excel file
 wb = load_workbook(filename)
 
@@ -130,8 +137,12 @@ wb = load_workbook(filename)
 ws = wb.active
 
 # Adjust column widths
-ws.column_dimensions["D"].width = 25
-ws.column_dimensions["E"].width = 35
+ws.column_dimensions["A"].width = 15
+ws.column_dimensions["B"].width = 10
+ws.column_dimensions["C"].width = 10
+ws.column_dimensions["D"].width = 10
+ws.column_dimensions["E"].width = 20
+ws.column_dimensions["F"].width = 30
 
 # Change cell colors for different belt ranks
 for i in range(0, len(rank_list)):
@@ -154,6 +165,7 @@ ws["B1"].fill = PatternFill(start_color=GREEN_HEADER, end_color=GREEN_HEADER, fi
 ws["C1"].fill = PatternFill(start_color=GREEN_HEADER, end_color=GREEN_HEADER, fill_type="solid")
 ws["D1"].fill = PatternFill(start_color=GREEN_HEADER, end_color=GREEN_HEADER, fill_type="solid")
 ws["E1"].fill = PatternFill(start_color=GREEN_HEADER, end_color=GREEN_HEADER, fill_type="solid")
+ws["F1"].fill = PatternFill(start_color=GREEN_HEADER, end_color=GREEN_HEADER, fill_type="solid")
 
 # Center align rows 1 to 100 for columns A to E
 for row in range(1, 500):
@@ -162,16 +174,16 @@ for row in range(1, 500):
     ws["C" + str(row)].alignment = Alignment(horizontal='center', vertical='center')
     ws["D" + str(row)].alignment = Alignment(horizontal='center', vertical='center')
     ws["E" + str(row)].alignment = Alignment(horizontal='center', vertical='center')
+    ws["F" + str(row)].alignment = Alignment(horizontal='center', vertical='center')
 
 # Save the file
 wb.save(filename)
-
-# <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Part 2: Getting URLs of brackets >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 print("\nExcel file created.")
 # exit()
 # Uncomment the "exit()" above if you only want the intial Excel file.  
 
-#-------------------------------------- Scrape age group, gender, rank, & weight class from each bracket --------------------------------------
+# -------------------------------------- Part 2: Getting URLs of brackets --------------------------------------
+# Scrape age group, gender, rank, & weight class from each bracket
 brackets_classification = []
 bracket_urls = []
 
@@ -206,14 +218,14 @@ for i in range(1, 3):
         brackets_classification.append(data)
 
 
-    #-------------------------------------- Scrape URL from each bracket --------------------------------------
+    # Scrape URL from each bracket
     body = brackets_soup.find('div', attrs={'class' : 'row'})
     for bracket in body.find_all('a', href=True):
         url = bracket['href']
         # Append each url to list
         bracket_urls.append(url)
 
-#-------------------------------------- Store each url of each competitor for the team of interest --------------------------------------
+# Store each url of each competitor for the team of interest
 list_of_urls = []
 for i in range(0, len(csv_dictionary["Classification"])):
     # Cases where the competitor has a bracket with other competitors
@@ -232,14 +244,76 @@ ws = wb.active
 for i in range(0, len(list_of_urls)):
     if (list_of_urls[i] != "No bracket"):
         # Convert each competitor's name into a hyperlink
-        ws["E" + str(i + 2)].hyperlink = list_of_urls[i]
+        ws["F" + str(i + 2)].hyperlink = list_of_urls[i]
         # Style the competitor's name into a hyperlink
-        ws["E" + str(i + 2)].font = Font(color=BLUE_URL, underline="single") 
+        ws["F" + str(i + 2)].font = Font(color=BLUE_URL, underline="single") 
 
 # Save the file
 wb.save(filename)
 
-print("\nExcel file updated with individual bracket URLs added.\n")
+print("Excel file updated with individual bracket URLs added.\n")
 
-#-------------------------------------- Generate requirements.txt file --------------------------------------
+# -------------------------------------- Part 3: Extracting time and mat assignment --------------------------------------
+mat_assignment = {
+    'Athlete_Top': [],
+    'Athlete_Bottom': [],
+    'DateTime': [],
+    'Time': [],
+    'Mat': []
+}
+
+response = requests.get(order_of_fights_url)
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Extract the two athletes that are competing in each bout
+for i in range(0, (len(csv_dictionary["Classification"]) * 2)):
+    if (i % 2 == 0):
+        athlete_top = soup.find_all("div", {"class": 'match-card__competitor-name'})[i].text
+        mat_assignment['Athlete_Top'].append(athlete_top)
+    else:
+        athlete_bottom = soup.find_all("div", {"class": 'match-card__competitor-name'})[i].text
+        mat_assignment['Athlete_Bottom'].append(athlete_bottom)
+
+# Extract the time of the match
+for j in range(0, len(csv_dictionary["Classification"])):
+    time_text = soup.find_all("span", {"class": 'search-match-header__when'})[j].text
+    # Clean up time to format: 'mm:dd hh:mm' 
+    dateTime = time_text[4:9] + " " + time_text[-8:]
+    time = time_text[-8:]
+    mat_assignment['DateTime'].append(dateTime)
+    mat_assignment['Time'].append(time)
+
+# Extract the mat assignment
+for k in range(0, len(csv_dictionary["Classification"])):
+    # Extract the text holding the mat assignment
+    mat_text = soup.find_all("span", {"class": 'search-match-header__where'})[k].text
+    mat_text = mat_text[6:8]
+    # Remove the ":"
+    mat = mat_text.replace(":", "")
+    mat_assignment['Mat'].append(mat)
+
+# Load the already created Excel file
+wb = load_workbook(filename)
+
+# Get the active sheet
+ws = wb.active
+
+# Find the 'DateTime', 'Time', and 'Mat' for each athlete
+for i in range(0, len(mat_assignment['Athlete_Top'])):
+    if mat_assignment['Athlete_Top'][i] in csv_dictionary['Name']:
+        key = csv_dictionary['Name'].index(mat_assignment['Athlete_Top'][i])
+    elif mat_assignment['Athlete_Bottom'][i] in csv_dictionary['Name']:
+        key = csv_dictionary['Name'].index(mat_assignment['Athlete_Bottom'][i])
+
+    # Add the 'DateTime', 'Time', and 'Mat' to the excel file for each athlete
+    ws["A" + str(key + 2)] = mat_assignment['DateTime'][i]
+    ws["B" + str(key + 2)] = mat_assignment['Time'][i]
+    ws["C" + str(key + 2)] = mat_assignment['Mat'][i]
+
+# Save the file
+wb.save(filename)
+
+print("Mat assignments have been updated!\n")
+
+# Generate requirements.txt file 
 # pipreqs C:\Users\Laptop\Desktop\IBJJF_Parser

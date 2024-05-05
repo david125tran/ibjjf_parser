@@ -10,5 +10,7 @@ Once bouts are assigned, the time and mat assignment is dumped in, and then my t
 # IBJJF Brackets with URL
 ![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/brackets.png)  
 
-# End result:
+# Intermediary Result (Excel File with Names, Color Coded Rank, Division, and Hyperlinks to Brackets):
 ![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/Screenshot.png)  
+  
+# End result:  

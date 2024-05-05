@@ -24,14 +24,14 @@ RED = "FF0000"
 GREEN_HEADER = "09c97d"
 BLUE_URL = "0000ff"
 
-#--- User Inputs ---
+# --- User Inputs ---
 team = "G13 BJJ USA"    # The team name is case sensitive.  Some team names have a space " " at the end of the name
 tourney_id = "2412"   
 club_id = "4440"        # Comes from searching a team from order of fights page
 filename = "test1"
 
 
-#--- Misc. Variables ---
+# --- Misc. Variables ---
 filename = filename + ".xlsx"
 bjjcompsystem = "https://www.bjjcompsystem.com"
 gender_category = "?gender_id="

@@ -5,12 +5,13 @@ The International Brazilian Jiu-Jitsu Federation (IBJJF) is a for-profit company
 Once bouts are assigned, the time and mat assignment is dumped in, and then my team uses this list to stay organized as one big group at the event. I built this for my own personal use.      
 
 # IBJJF Registration List
-![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/IBJJF%20Screenshot.png)  
+![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/IBJJF-athletes.png)  
 
 # IBJJF Brackets with URL
 ![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets.png)  
 
 # Intermediary Result (Excel File with Names, Color Coded Rank, Division, and Hyperlinks to Brackets):
-![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/Screenshot.png)  
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/bracketspart-2.png)  
   
 # End result:  
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/bracketspart-3.png)  

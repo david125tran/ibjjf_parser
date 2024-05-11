@@ -21,7 +21,7 @@ Hundreds of brackets.
 # End Result:
 I then can use Excel's sort function (Z to A) to sort the list of competitors by when they compete using the DateTime column.  
 Each person's name is a link to their actual bracket.  
-![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-5.png)  
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-4.png)  
   
 # Example of Individual Bracket:
-![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/bracket.png)  
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/individual-bracket.png)  

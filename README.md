@@ -19,7 +19,7 @@ Hundreds of brackets.
 ![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-3.png)  
   
 # End Result:
-I then can use Excel's sort function (Z to A) to sort the list of competitors by when they compete using the DateTime column.  
+I then can use Excel's custom sort function (sort by DateTime) to sort the list of competitors by when they compete.  
 Each person's name is a link to their actual bracket.  
 ![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-4.png)  
   

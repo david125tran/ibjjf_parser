@@ -4,14 +4,24 @@ The International Brazilian Jiu-Jitsu Federation (IBJJF) is a for-profit company
   
 Once bouts are assigned, the time and mat assignment is dumped in, and then my team uses this list to stay organized as one big group at the event. I built this for my own personal use.  I scrape the IBJJF websites in three parts because the IBJJF does not create all three websites at the same time.  They typically release them in a certain order.  And so I scrape in a way that matches that.        
 
-# IBJJF Registration List
+# IBJJF Registration List:
+These lists are typically over a thousand athletes.  
 ![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/IBJJF-athletes.png)  
-
-# IBJJF Brackets with URL
+  
+# IBJJF Brackets with URL:  
+Hundreds of brackets.  
 ![IBJJF Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets.png)  
-
-# Intermediary Result (Excel File with Names, Color Coded Rank, Division, and Hyperlinks to Brackets):
+  
+# Intermediary Result (Part 2):
 ![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-2.png)  
   
-# End Result (Excel File with Mat Assignments, Names, Color Coded Rank, Division, and Hyperlinks to Brackets):  
+# Intermediary Result (Part 3):
 ![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-3.png)  
+  
+# End Result:
+I then can use Excel's sort function (Z to A) to sort the list of competitors by when they compete using the DateTime column.  
+Each person's name is a link to their actual bracket.  
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/brackets-part-5.png)  
+  
+# Example of Individual Bracket:
+![Excel Screenshot](https://github.com/david125tran/ibjjf_parser/blob/main/images/bracket.png)  

@@ -28,8 +28,7 @@ BLUE_URL = "0000ff"
 team = "G13 BJJ USA"    # The team name is case sensitive.  Some team names have a space " " at the end of the name
 tourney_id = "2412"   
 club_id = "4440"        # Comes from searching a team from order of fights page
-filename = "test1"
-
+filename = "brackets"
 
 # --- Misc. Variables ---
 filename = filename + ".xlsx"
@@ -123,7 +122,6 @@ for i in range(0, len(athletes)):
         csv_dictionary['Name'].append(name)
 
 # Push 'csv_dictionary' to MS Excel (.xlsx) with Pandas  
-# dictionary to data frame
 df = pd.DataFrame.from_dict(csv_dictionary)
 
 # dataframe to csv
@@ -146,7 +144,7 @@ ws.column_dimensions["F"].width = 30
 
 # Change cell colors for different belt ranks
 for i in range(0, len(rank_list)):
-    cell = "C" + str(i + 2) # Start at cell "C2"
+    cell = "D" + str(i + 2) # Start at cell "D2"
     if rank_list[i] == "WHITE":
         pass
     elif rank_list[i] == "BLUE":
@@ -176,8 +174,10 @@ for row in range(1, 500):
     ws["E" + str(row)].alignment = Alignment(horizontal='center', vertical='center')
     ws["F" + str(row)].alignment = Alignment(horizontal='center', vertical='center')
 
-# Save the file
+# Save the file and close the connection
 wb.save(filename)
+wb.close()
+
 print("\nExcel file created.")
 # exit()
 # Uncomment the "exit()" above if you only want the intial Excel file.  
@@ -217,7 +217,6 @@ for i in range(1, 3):
         data = age_group + "/" + gender + "/" + rank + "/" + weight
         brackets_classification.append(data)
 
-
     # Scrape URL from each bracket
     body = brackets_soup.find('div', attrs={'class' : 'row'})
     for bracket in body.find_all('a', href=True):
@@ -248,70 +247,95 @@ for i in range(0, len(list_of_urls)):
         # Style the competitor's name into a hyperlink
         ws["F" + str(i + 2)].font = Font(color=BLUE_URL, underline="single") 
 
-# Save the file
+# Save the file and close the connection
 wb.save(filename)
+wb.close()
 
-print("Excel file updated with individual bracket URLs added.\n")
+print("Excel file updated with individual bracket URLs added.")
 
 # -------------------------------------- Part 3: Extracting time and mat assignment --------------------------------------
-mat_assignment = {
-    'Athlete_Top': [],
-    'Athlete_Bottom': [],
-    'DateTime': [],
-    'Time': [],
-    'Mat': []
-}
-
-response = requests.get(order_of_fights_url)
-soup = BeautifulSoup(response.content, 'html.parser')
-
-# Extract the two athletes that are competing in each bout
-for i in range(0, (len(csv_dictionary["Classification"]) * 2)):
-    if (i % 2 == 0):
-        athlete_top = soup.find_all("div", {"class": 'match-card__competitor-name'})[i].text
-        mat_assignment['Athlete_Top'].append(athlete_top)
-    else:
-        athlete_bottom = soup.find_all("div", {"class": 'match-card__competitor-name'})[i].text
-        mat_assignment['Athlete_Bottom'].append(athlete_bottom)
-
-# Extract the time of the match
-for j in range(0, len(csv_dictionary["Classification"])):
-    time_text = soup.find_all("span", {"class": 'search-match-header__when'})[j].text
-    # Clean up time to format: 'mm:dd hh:mm' 
-    dateTime = time_text[4:9] + " " + time_text[-8:]
-    time = time_text[-8:]
-    mat_assignment['DateTime'].append(dateTime)
-    mat_assignment['Time'].append(time)
-
-# Extract the mat assignment
-for k in range(0, len(csv_dictionary["Classification"])):
-    # Extract the text holding the mat assignment
-    mat_text = soup.find_all("span", {"class": 'search-match-header__where'})[k].text
-    mat_text = mat_text[6:8]
-    # Remove the ":"
-    mat = mat_text.replace(":", "")
-    mat_assignment['Mat'].append(mat)
-
 # Load the already created Excel file
 wb = load_workbook(filename)
 
 # Get the active sheet
 ws = wb.active
 
-# Find the 'DateTime', 'Time', and 'Mat' for each athlete
-for i in range(0, len(mat_assignment['Athlete_Top'])):
-    if mat_assignment['Athlete_Top'][i] in csv_dictionary['Name']:
-        key = csv_dictionary['Name'].index(mat_assignment['Athlete_Top'][i])
-    elif mat_assignment['Athlete_Bottom'][i] in csv_dictionary['Name']:
-        key = csv_dictionary['Name'].index(mat_assignment['Athlete_Bottom'][i])
+response = requests.get(order_of_fights_url)
+soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Add the 'DateTime', 'Time', and 'Mat' to the excel file for each athlete
-    ws["A" + str(key + 2)] = mat_assignment['DateTime'][i]
-    ws["B" + str(key + 2)] = mat_assignment['Time'][i]
-    ws["C" + str(key + 2)] = mat_assignment['Mat'][i]
+mat_assignment = {
+    'Athlete': [],
+    'DateTime': [],
+    'Time': [],
+    'Mat': []
+}
 
-# Save the file
+# Find the first round matches and byes
+for ultag in soup.find_all('ul', {'class': 'list-unstyled tournament-day__matches'}):
+    for litag in ultag.find_all('li'):
+        # A first round match is occuring
+        if litag['class'] == ['match--assigned']:
+            for spantag in litag.find_all('span'):
+                # Get 'Name'
+                if spantag['class'] == ['match-card__competitor-description']:
+                    for divtag in spantag.find_all('div'):
+                        if divtag['class'] == ['match-card__competitor-name']:
+                            if divtag.text in csv_dictionary['Name']:
+                                mat_assignment['Athlete'].append(divtag.text) 
+                # Get 'DateTime' and 'Time
+                elif spantag['class'] == ['search-match-header__when']:
+                    time_text = spantag.text
+                    # Clean data
+                    dateTime = time_text[4:9] + " " + time_text[-8:]
+                    time = time_text[-8:]
+                    mat_assignment['DateTime'].append(dateTime)
+                    mat_assignment['Time'].append(time)
+                # Get 'Mat'
+                elif spantag['class'] == ['search-match-header__where']:
+                    mat_text = spantag.text
+                    mat_text = mat_text[6:8]
+                    # Remove the ":"
+                    mat = mat_text.replace(":", "")
+                    mat_assignment['Mat'].append(mat)       
+        # A first round bye is occuring
+        else:
+            # Get 'Name'
+            for divtag in litag.find_all('div'):
+                if divtag['class'] == ['match-card__competitor-name']:
+                    if divtag.text in csv_dictionary['Name']:
+                        mat_assignment['Athlete'].append(divtag.text)   
+            for spantag in litag.find_all('span'):
+                # Get 'DateTime' and 'Time
+                if spantag['class'] == ['search-match-header__when']:
+                    time_text = spantag.text
+                    # Clean data
+                    dateTime = time_text[4:9] + " " + time_text[-8:]
+                    time = time_text[-8:]
+                    mat_assignment['DateTime'].append(dateTime)
+                    mat_assignment['Time'].append(time)
+                # Get 'Mat'
+                elif spantag['class'] == ['search-match-header__where']:
+                    mat_text = spantag.text
+                    mat_text = mat_text[6:8]
+                    # Remove the ":"
+                    mat = mat_text.replace(":", "")
+                    mat_assignment['Mat'].append(mat)  
+    # Don't append duplicates 
+    break   
+
+for i in range(0, len(mat_assignment['Athlete'])):
+    # Match up indices of mat_assignment and csv_dictionary 
+    if mat_assignment['Athlete'][i] in csv_dictionary['Name']:
+        key = csv_dictionary['Name'].index(mat_assignment['Athlete'][i])
+
+        # Append 'DateTime', 'Time', and 'Mat'
+        ws["A" + str(key + 2)] = mat_assignment['DateTime'][i]
+        ws["B" + str(key + 2)] = mat_assignment['Time'][i]
+        ws["C" + str(key + 2)] = mat_assignment['Mat'][i]
+
+# Save the file and close the connection
 wb.save(filename)
+wb.close()
 
 print("Mat assignments have been updated!\n")
 

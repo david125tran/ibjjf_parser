@@ -19,14 +19,14 @@ from sys import exit
 BLUE = "00CCFF"
 PURPLE = "FF00FF"
 BROWN = "993300"
-BLACK = "000000"
+BLACK = "010101" # MS Word doesn't like true black "000000" when we copy over, so we go to a lighter black. 
 RED = "FF0000"
 GREEN_HEADER = "09c97d"
 BLUE_URL = "0000ff"
 
 # --- User Inputs ---
 team = "G13 BJJ USA"    # The team name is case sensitive.  Some team names have a space " " at the end of the name
-tourney_id = "2412"   
+tourney_id = "2414"   
 club_id = "4440"        # Comes from searching a team from order of fights page
 filename = "brackets"
 
@@ -59,7 +59,7 @@ athletes = athletes.replace('"},', ',')
 athletes = athletes.replace('"}', '')
 athletes = athletes.split(",")
 
-csv_dictionary = {
+xlsx_dictionary = {
     'DateTime': [],
     'Time': [],
     'Mat': [],
@@ -107,24 +107,24 @@ for i in range(0, len(athletes)):
         # Store classification (Example: "M1/F/BLUE/Light") so we can search for it later
         classification = division + "/" + gender[1] + "/" + rank + "/" + wc
 
-        # Append to csv_dictionary
-        csv_dictionary['DateTime'].append("TBD")
-        csv_dictionary['Time'].append("TBD")
-        csv_dictionary['Mat'].append("TBD")
-        csv_dictionary['Division'].append(division)
-        csv_dictionary['Classification'].append(classification)
-        csv_dictionary['Weight Class'].append(weight_class)
+        # Append to xlsx_dictionary
+        xlsx_dictionary['DateTime'].append("TBD")
+        xlsx_dictionary['Time'].append("TBD")
+        xlsx_dictionary['Mat'].append("TBD")
+        xlsx_dictionary['Division'].append(division)
+        xlsx_dictionary['Classification'].append(classification)
+        xlsx_dictionary['Weight Class'].append(weight_class)
 
     # Store the athlete's name
     else:
         name = athletes[i]
         # Append to team_dictionary 
-        csv_dictionary['Name'].append(name)
+        xlsx_dictionary['Name'].append(name)
 
-# Push 'csv_dictionary' to MS Excel (.xlsx) with Pandas  
-df = pd.DataFrame.from_dict(csv_dictionary)
+# Push 'xlsx_dictionary' to MS Excel (.xlsx) with Pandas  
+df = pd.DataFrame.from_dict(xlsx_dictionary)
 
-# dataframe to csv
+# dataframe to Excel
 df.to_excel(filename, columns=['DateTime', 'Time', 'Mat', 'Division', 'Weight Class', 'Name'], index=False, header=True)
 
 # Format Excel File with OpenPyXL
@@ -136,7 +136,7 @@ ws = wb.active
 
 # Adjust column widths
 ws.column_dimensions["A"].width = 15
-ws.column_dimensions["B"].width = 10
+ws.column_dimensions["B"].width = 12
 ws.column_dimensions["C"].width = 10
 ws.column_dimensions["D"].width = 10
 ws.column_dimensions["E"].width = 20
@@ -226,10 +226,10 @@ for i in range(1, 3):
 
 # Store each url of each competitor for the team of interest
 list_of_urls = []
-for i in range(0, len(csv_dictionary["Classification"])):
+for i in range(0, len(xlsx_dictionary["Classification"])):
     # Cases where the competitor has a bracket with other competitors
-    if csv_dictionary["Classification"][i] in brackets_classification:
-        index = brackets_classification.index(csv_dictionary["Classification"][i])
+    if xlsx_dictionary["Classification"][i] in brackets_classification:
+        index = brackets_classification.index(xlsx_dictionary["Classification"][i])
         list_of_urls.append(bjjcompsystem + bracket_urls[index])
     else:
         list_of_urls.append("No bracket")
@@ -280,7 +280,7 @@ for ultag in soup.find_all('ul', {'class': 'list-unstyled tournament-day__matche
                 if spantag['class'] == ['match-card__competitor-description']:
                     for divtag in spantag.find_all('div'):
                         if divtag['class'] == ['match-card__competitor-name']:
-                            if divtag.text in csv_dictionary['Name']:
+                            if divtag.text in xlsx_dictionary['Name']:
                                 mat_assignment['Athlete'].append(divtag.text) 
                 # Get 'DateTime' and 'Time
                 elif spantag['class'] == ['search-match-header__when']:
@@ -302,7 +302,7 @@ for ultag in soup.find_all('ul', {'class': 'list-unstyled tournament-day__matche
             # Get 'Name'
             for divtag in litag.find_all('div'):
                 if divtag['class'] == ['match-card__competitor-name']:
-                    if divtag.text in csv_dictionary['Name']:
+                    if divtag.text in xlsx_dictionary['Name']:
                         mat_assignment['Athlete'].append(divtag.text)   
             for spantag in litag.find_all('span'):
                 # Get 'DateTime' and 'Time
@@ -324,14 +324,24 @@ for ultag in soup.find_all('ul', {'class': 'list-unstyled tournament-day__matche
     break   
 
 for i in range(0, len(mat_assignment['Athlete'])):
-    # Match up indices of mat_assignment and csv_dictionary 
-    if mat_assignment['Athlete'][i] in csv_dictionary['Name']:
-        key = csv_dictionary['Name'].index(mat_assignment['Athlete'][i])
+    # Match up indices of mat_assignment and xlsx_dictionary 
+    if mat_assignment['Athlete'][i] in xlsx_dictionary['Name']:
+        key = xlsx_dictionary['Name'].index(mat_assignment['Athlete'][i])
 
         # Append 'DateTime', 'Time', and 'Mat'
         ws["A" + str(key + 2)] = mat_assignment['DateTime'][i]
         ws["B" + str(key + 2)] = mat_assignment['Time'][i]
         ws["C" + str(key + 2)] = mat_assignment['Mat'][i]
+
+# Iterate through each row
+for i in range(1, len(mat_assignment['Athlete']) + 1):
+    # Replace "TBD" with "NA" because the athlete is alone in the bracket
+    if ws["A" + str(i)].value == "TBD":
+        ws["A" + str(i)] = "NA"
+    if ws["B" + str(i)].value == "TBD":
+        ws["B" + str(i)] = "NA"
+    if ws["C" + str(i)].value == "TBD":
+        ws["C" + str(i)] = "NA"
 
 # Save the file and close the connection
 wb.save(filename)
